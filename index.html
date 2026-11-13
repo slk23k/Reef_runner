@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Reef Runner</title>
+  <!-- ОБЯЗАТЕЛЬНО: YouTube Playables SDK загружается синхронно ДО любых скриптов игры -->
+  <script src="https://www.youtube.com/game_api/v1"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="viewport-wrapper">
+  <div id="game-container">
+    <canvas id="gameCanvas" width="360" height="640"></canvas>
+    
+    <button id="musicToggleBtn" class="music-toggle" onclick="window.toggleMusic()">
+      <span id="musicIcon">🔊</span> <span id="musicLabel">PHONK</span>
+    </button>
+
+    <div id="toastMsg"></div>
+
+    <!-- Индикатор паузы (если игру поставил на паузу сам YouTube) -->
+    <div id="pauseOverlay" class="ui-overlay" style="display: none; z-index: 40;">
+      <h2 class="screen-title" data-i18n="pausedTitle">Пауза</h2>
+    </div>
+
+    <div id="hudBoosts" class="hud-boosts" style="display: none;">
+      <button id="buyRunHpBtn" class="boost-btn boost-btn-heart" onclick="window.buyMidRunLife()">
+        ❤️‍🩹
+        <span class="boost-price-tag">300</span>
+      </button>
+      <button id="cleanInkBtn" class="boost-btn" onclick="window.useCleanInk()">🧼</button>
+      <button id="unfreezeBtn" class="boost-btn" onclick="window.useUnfreeze()">⚡</button>
+    </div>
+
+    <!-- Стартовый экран -->
+    <div id="startScreen" class="ui-overlay">
+      <div class="lang-switcher">
+        <button class="lang-btn" id="lang-ru" onclick="window.setLanguage('ru')">RU</button>
+        <button class="lang-btn" id="lang-en" onclick="window.setLanguage('en')">EN</button>
+        <button class="lang-btn" id="lang-es" onclick="window.setLanguage('es')">ES</button>
+      </div>
+
+      <div class="logo-container">
+        <svg class="logo-svg" viewBox="0 0 360 115">
+          <defs>
+            <path id="logoArc" d="M 18,92 Q 180,32 342,92" />
+            <linearGradient id="goldFill" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#fff685" />
+              <stop offset="45%" stop-color="#ffcc00" />
+              <stop offset="85%" stop-color="#ff7b00" />
+              <stop offset="100%" stop-color="#e04800" />
+            </linearGradient>
+            <linearGradient id="depthExtrude" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#2b4c7e" />
+              <stop offset="100%" stop-color="#0b1d3a" />
+            </linearGradient>
+          </defs>
+          <g transform="translate(0, 6)">
+            <text text-anchor="middle" fill="none" stroke="#0b1d3a" stroke-width="18" stroke-linejoin="round" stroke-linecap="round">
+              <textPath href="#logoArc" startOffset="50%">Reef Runner</textPath>
+            </text>
+          </g>
+          <text text-anchor="middle" fill="none" stroke="url(#depthExtrude)" stroke-width="16" stroke-linejoin="round" stroke-linecap="round">
+            <textPath href="#logoArc" startOffset="50%">Reef Runner</textPath>
+          </text>
+          <text text-anchor="middle" fill="none" stroke="#7c2d12" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+            <textPath href="#logoArc" startOffset="50%">Reef Runner</textPath>
+          </text>
+          <text text-anchor="middle" fill="url(#goldFill)">
+            <textPath href="#logoArc" startOffset="50%">Reef Runner</textPath>
+          </text>
+        </svg>
+      </div>
+
+      <div class="stats-row">
+        <div class="coin-badge">
+          <span data-i18n="coinsBank">Монеты:</span>&nbsp;<b id="totalCoinsText" style="color: #ffd166;">0</b><span class="spinning-coin"></span>
+        </div>
+        <div class="coin-badge">
+          🏆 <span data-i18n="bestScoreLabel">Рекорд:</span>&nbsp;<b id="highScoreText" style="color: #48dbfb;">0</b>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; width: 220px;">
+        <button class="btn" data-i18n="playBtn" onclick="window.startGame()">▶ ИГРАТЬ</button>
+        <button class="btn btn-secondary" data-i18n="shopBtn" onclick="window.openShop()">🛒 МАГАЗИН</button>
+      </div>
+    </div>
+
+    <!-- Магазин -->
+    <div id="shopScreen" class="ui-overlay" style="display: none;">
+      <h2 class="screen-title" data-i18n="shopTitle">Магазин Рифа</h2>
+      <div class="coin-badge" style="margin-bottom: 12px; padding: 5px 16px;">
+        <span data-i18n="balance">Баланс:</span>&nbsp;<b id="shopCoinsText" style="color: #ffd166;">0</b><span class="spinning-coin"></span>
+      </div>
+      
+      <div class="shop-box">
+        <!-- Блок Rewarded-рекламы за +100 монет -->
+        <div class="shop-item shop-item-ad">
+          <div class="shop-item-info">
+            <div class="shop-item-title" data-i18n="itemFreeCoinsTitle">🎬 Сундук за рекламу (+100)</div>
+            <div class="shop-item-desc" data-i18n="itemFreeCoinsDesc">Посмотри ролик и получи 100 монет</div>
+          </div>
+          <button class="btn btn-buy btn-ad" onclick="window.watchAdForCoins()">+100 <span class="spinning-coin"></span></button>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-info">
+            <div class="shop-item-title" data-i18n="itemHpTitle">❤️ Макс. Здоровье (+1 HP)</div>
+            <div class="shop-item-desc" data-i18n="itemHpDesc">Увеличивает запас до 4 сердец</div>
+          </div>
+          <button class="btn btn-buy" onclick="window.buyUpgrade('maxHp', 200)">200 <span class="spinning-coin"></span></button>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-info">
+            <div class="shop-item-title" data-i18n="itemBlueTitle">💎 Скин: Лазурный Неон</div>
+            <div class="shop-item-desc" data-i18n="itemBlueDesc">Яркий тропический окрас</div>
+          </div>
+          <button class="btn btn-buy" onclick="window.buySkin('blue', 100)">100 <span class="spinning-coin"></span></button>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-info">
+            <div class="shop-item-title" data-i18n="itemGoldTitle">👑 Скин: Золотой Император</div>
+            <div class="shop-item-desc" data-i18n="itemGoldDesc">Сияющий легендарный окрас</div>
+          </div>
+          <button class="btn btn-buy" onclick="window.buySkin('gold', 300)">300 <span class="spinning-coin"></span></button>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-info">
+            <div class="shop-item-title" data-i18n="itemUnfreezeTitle">⚡ Анти-Шок</div>
+            <div class="shop-item-desc" data-i18n="itemUnfreezeDesc">Мгновенно снимает разряд и качку</div>
+          </div>
+          <button class="btn btn-buy" onclick="window.buyItem('unfreeze', 50)">50 <span class="spinning-coin"></span></button>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-info">
+            <div class="shop-item-title" data-i18n="itemCleanTitle">🧼 Чистая Вода</div>
+            <div class="shop-item-desc" data-i18n="itemCleanDesc">Смывает кляксы чернил спрута</div>
+          </div>
+          <button class="btn btn-buy" onclick="window.buyItem('cleanInk', 50)">50 <span class="spinning-coin"></span></button>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-info">
+            <div class="shop-item-title" data-i18n="itemBoostTitle">🚀 Быстрый Старт (+150)</div>
+            <div class="shop-item-desc" data-i18n="itemBoostDesc">Начни заплыв сразу со 150 очками</div>
+          </div>
+          <button class="btn btn-buy" onclick="window.buyItem('boostScore', 80)">80 <span class="spinning-coin"></span></button>
+        </div>
+      </div>
+      <button class="btn btn-secondary" style="padding: 10px 24px; font-size: 15px;" data-i18n="backMenuBtn" onclick="window.closeShop()">🏠 НАЗАД В МЕНЮ</button>
+    </div>
+
+    <!-- Окно "Продолжить заплыв?" (за монеты или за Rewarded-рекламу) -->
+    <div id="continueScreen" class="ui-overlay" style="display: none;">
+      <h2 class="screen-title" style="color: #ffd166; font-size: 32px;" data-i18n="continueTitle">Продолжить заплыв?</h2>
+      <p style="color: #bfe6ff; font-size: 14px; margin: 0 0 14px 0; text-align: center;" data-i18n="continueDesc">Восстанови 1 ❤️ и получи защитный щит!</p>
+      <div class="coin-badge" style="margin-bottom: 16px;">
+        <span data-i18n="availableCoins">Доступно:</span>&nbsp;<b id="continueCoinsText" style="color: #ffd166;">0</b><span class="spinning-coin"></span>
+      </div>
+      <div style="display: flex; flex-direction: column; width: 250px;">
+        <button class="btn btn-ad" onclick="window.continueWithAd()">
+          <span data-i18n="continueAdBtn">🎬 ЗА РЕКЛАМУ (БЕСПЛАТНО)</span>
+        </button>
+        <button class="btn" onclick="window.confirmContinue()">
+          <span data-i18n="continueYesBtn">▶ ЗА МОНЕТЫ (150)</span> <span class="spinning-coin"></span>
+        </button>
+        <button class="btn btn-secondary" data-i18n="continueNoBtn" onclick="window.declineContinue()">✖ ЗАВЕРШИТЬ</button>
+      </div>
+    </div>
+
+    <!-- Экран окончания игры -->
+    <div id="gameOverScreen" class="ui-overlay" style="display: none;">
+      <h2 class="screen-title" style="color: #ff6b6b; font-size: 34px;" data-i18n="gameOverTitle">Заплыв окончен!</h2>
+      <div class="coin-badge" style="margin-bottom: 10px;" id="finalScore">Счет: 0 | Монеты: +0</div>
+      <div class="coin-badge" style="margin-bottom: 22px;" id="finalHighScore">🏆 Рекорд: 0</div>
+      <div style="display: flex; flex-direction: column; width: 220px;">
+        <button class="btn" data-i18n="playAgainBtn" onclick="window.restartGameWithAd()">🔄 ЕЩЕ РАЗ</button>
+        <button class="btn btn-secondary" data-i18n="toMenuBtn" onclick="window.backToMenu()">🏠 В МЕНЮ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
