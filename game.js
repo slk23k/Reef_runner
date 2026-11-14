@@ -2597,13 +2597,34 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+// Имитация быстрой загрузки при старте страницы
+window.addEventListener('DOMContentLoaded', () => {
+  let progress = 0;
+  const bar = document.getElementById('loadingProgress');
+  const txt = document.getElementById('loadingText');
+  const btn = document.getElementById('splashStartBtn');
+
+  const loadInterval = setInterval(() => {
+    progress += Math.floor(Math.random() * 25) + 15;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(loadInterval);
+      if (bar) bar.style.width = '100%';
+      if (txt) txt.style.display = 'none';
+      if (btn) btn.style.display = 'inline-flex'; // Показываем кнопку Старт
+    } else {
+      if (bar) bar.style.width = progress + '%';
+    }
+  }, 120);
+});
+
 window.handleFirstUserGesture = function() {
   const overlay = document.getElementById('tapToStartOverlay');
   if (overlay) {
     overlay.style.opacity = '0';
     setTimeout(() => {
       overlay.style.display = 'none';
-    }, 400);
+    }, 500);
   }
   
   // Принудительно разблокируем аудиоконтекст и запускаем музыку лобби

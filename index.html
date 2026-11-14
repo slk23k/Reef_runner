@@ -10,12 +10,23 @@
 </head>
 <body>
 
-<!-- Стартовая заставка-плашка для разблокировки звука -->
-<div id="tapToStartOverlay" onclick="window.handleFirstUserGesture()">
-  <div class="tap-content">
-    <div class="tap-icon">🌊</div>
-    <h1>Reef Runner</h1>
-    <p>Нажми в любое место, чтобы начать</p>
+<!-- Стартовый экран-заставка (Загрузка и Старт) -->
+<div id="tapToStartOverlay">
+  <div class="splash-content">
+    <div class="splash-icon">🌊</div>
+    <h1 class="splash-title">Reef Runner</h1>
+    <p class="splash-subtitle" data-i18n="splashDesc">Глубоководное приключение</p>
+    
+    <!-- Полоса загрузки (анимированная) -->
+    <div class="loading-bar-container">
+      <div id="loadingProgress" class="loading-bar-fill"></div>
+    </div>
+    <div id="loadingText" class="loading-text">Загрузка мира...</div>
+
+    <!-- Кнопка Старт (появится после загрузки или сразу) -->
+    <button id="splashStartBtn" class="btn splash-btn" onclick="window.handleFirstUserGesture()" style="display: none;">
+      ▶ НАЧАТЬ ИГРУ
+    </button>
   </div>
 </div>
 
