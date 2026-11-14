@@ -10,6 +10,15 @@
 </head>
 <body>
 
+<!-- Стартовая заставка-плашка для разблокировки звука -->
+<div id="tapToStartOverlay" onclick="window.handleFirstUserGesture()">
+  <div class="tap-content">
+    <div class="tap-icon">🌊</div>
+    <h1>Reef Runner</h1>
+    <p>Нажми в любое место, чтобы начать</p>
+  </div>
+</div>
+
 <div id="viewport-wrapper">
   <div id="game-container">
     <canvas id="gameCanvas" width="360" height="640"></canvas>
@@ -97,7 +106,6 @@
       </div>
       
       <div class="shop-box">
-        <!-- Блок Rewarded-рекламы за +100 монет -->
         <div class="shop-item shop-item-ad">
           <div class="shop-item-info">
             <div class="shop-item-title" data-i18n="itemFreeCoinsTitle">🎬 Сундук за рекламу (+100)</div>
@@ -151,7 +159,7 @@
       <button class="btn btn-secondary" style="padding: 10px 24px; font-size: 15px;" data-i18n="backMenuBtn" onclick="window.closeShop()">🏠 НАЗАД В МЕНЮ</button>
     </div>
 
-    <!-- Окно "Продолжить заплыв?" (за монеты или за Rewarded-рекламу) -->
+    <!-- Окно продолжения -->
     <div id="continueScreen" class="ui-overlay" style="display: none;">
       <h2 class="screen-title" style="color: #ffd166; font-size: 32px;" data-i18n="continueTitle">Продолжить заплыв?</h2>
       <p style="color: #bfe6ff; font-size: 14px; margin: 0 0 14px 0; text-align: center;" data-i18n="continueDesc">Восстанови 1 ❤️ и получи защитный щит!</p>

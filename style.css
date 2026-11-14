@@ -353,3 +353,48 @@ h2.screen-title {
   transition: opacity 0.25s;
   white-space: nowrap;
 }
+
+#tapToStartOverlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, #0e6ba8 0%, #031124 100%);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: opacity 0.4s ease;
+}
+
+.tap-content {
+  text-align: center;
+  animation: pulseTap 1.5s ease-in-out infinite;
+  padding: 20px;
+}
+
+.tap-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+#tapToStartOverlay h1 {
+  font-size: 36px;
+  font-weight: 900;
+  color: #ffd166;
+  margin: 0 0 10px 0;
+  -webkit-text-stroke: 1px #0a3d62;
+  text-shadow: 0 3px 0 #0a3d62;
+}
+
+#tapToStartOverlay p {
+  font-size: 15px;
+  color: #bfe6ff;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes pulseTap {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.05); opacity: 1; }
+}

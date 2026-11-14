@@ -2596,3 +2596,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     try { ytgame.game.gameReady(); } catch (e) {}
   }
 });
+
+window.handleFirstUserGesture = function() {
+  const overlay = document.getElementById('tapToStartOverlay');
+  if (overlay) {
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 400);
+  }
+  
+  // Принудительно разблокируем аудиоконтекст и запускаем музыку лобби
+  ensureAudio();
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  setMusicMode('lobby');
+};
