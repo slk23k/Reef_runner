@@ -211,6 +211,8 @@ const CACHED_GRADS = {
 // --- ЛОКАЛИЗАЦИЯ ---
 const I18N = {
   ru: {
+    loadingWorld: "Загрузка мира...",
+    splashStartBtn: "▶ НАЧАТЬ ИГРУ",
     coinsBank: "Монеты:",
     bestScoreLabel: "Рекорд:",
     playBtn: "▶ ИГРАТЬ",
@@ -264,6 +266,8 @@ const I18N = {
     msgMaxOrNoCoins: "⚠️ Недостаточно монет или уже максимум!"
   },
   en: {
+    loadingWorld: "Loading world...",
+    splashStartBtn: "▶ START GAME",
     coinsBank: "Coins:",
     bestScoreLabel: "Best:",
     playBtn: "▶ PLAY",
@@ -317,6 +321,8 @@ const I18N = {
     msgMaxOrNoCoins: "⚠️ Not enough coins or already maxed!"
   },
   es: {
+    loadingWorld: "Cargando mundo...",
+    splashStartBtn: "▶ EMPEZAR JUEGO",
     coinsBank: "Monedas:",
     bestScoreLabel: "Récord:",
     playBtn: "▶ JUGAR",
@@ -371,7 +377,7 @@ const I18N = {
   }
 };
 
-let currentLang = 'ru';
+let currentLang = 'en';
 
 function normalizeLangCode(raw) {
   const code = (raw || 'en').toLowerCase();
@@ -395,17 +401,37 @@ window.setLanguage = function(lang) {
     el.innerText = t(key);
   });
 
-  document.getElementById('cleanInkBtn').title = t('cleanInkTip');
-  document.getElementById('unfreezeBtn').title = t('unfreezeTip');
-  document.getElementById('buyRunHpBtn').title = t('buyHpTip');
+  const cleanBtn = document.getElementById('cleanInkBtn');
+  const unfreezeBtn = document.getElementById('unfreezeBtn');
+  const buyHpBtn = document.getElementById('buyRunHpBtn');
+  if (cleanBtn) cleanBtn.title = t('cleanInkTip');
+  if (unfreezeBtn) unfreezeBtn.title = t('unfreezeTip');
+  if (buyHpBtn) buyHpBtn.title = t('buyHpTip');
 
   ['ru', 'en', 'es'].forEach(l => {
     const btn = document.getElementById('lang-' + l);
     if (btn) btn.classList.toggle('active', l === lang);
   });
 
-  if (!isPlaying) drawMenuBackground();
+  if (typeof isPlaying !== 'undefined' && !isPlaying) drawMenuBackground();
 };
+
+// Мгновенно выставляем язык браузера еще до полной загрузки облака, чтобы стартовый экран сразу был на языке игрока
+(() => {
+  let fastLang = null;
+  try { fastLang = localStorage.getItem('reefRunnerLang'); } catch (e) {}
+  if (!fastLang) {
+    fastLang = normalizeLangCode(navigator.language || navigator.userLanguage);
+  }
+  if (I18N[fastLang]) {
+    currentLang = fastLang;
+    document.documentElement.lang = fastLang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      el.innerText = t(key);
+    });
+  }
+})();
 
 let toastTimeout = null;
 function showToast(msg) {
