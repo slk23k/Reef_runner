@@ -1,7 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 
-// --- АДАПТИВНОЕ МАСШТАБИРОВАНИЕ ПОД ЛЮБОЙ ЭКРАН ---
+// --- АДАПТИВНОЕ МАСШТАБИРОВАНИЕ БЕЗ ИСКАЖЕНИЯ ПРОПОРЦИЙ ---
 function fitGameToViewport() {
   const container = document.getElementById('game-container');
   if (!container) return;
@@ -10,13 +10,9 @@ function fitGameToViewport() {
   const scaleX = vw / 360;
   const scaleY = vh / 640;
 
-  // На мобильных (ширина <= 600px) растягиваем ровно на весь экран без рамок
-  if (vw <= 600) {
-    container.style.transform = `scale(${scaleX}, ${scaleY})`;
-  } else {
-    const scale = Math.min(scaleX, scaleY);
-    container.style.transform = `scale(${scale})`;
-  }
+  // Сохраняем родные пропорции 360x640 без растягивания рыбки и текста
+  const scale = Math.min(scaleX, scaleY);
+  container.style.transform = `scale(${scale})`;
 }
 window.addEventListener('resize', fitGameToViewport);
 window.addEventListener('orientationchange', fitGameToViewport);
@@ -2597,25 +2593,29 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Имитация быстрой загрузки при старте страницы
+// --- АНИМАЦИЯ ЗАГРУЗКИ И РАЗБЛОКИРОВКА ЗВУКА НА СТАРТОВОМ ЭКРАНЕ ---
 window.addEventListener('DOMContentLoaded', () => {
   let progress = 0;
+  const barWrap = document.getElementById('loadingBarWrap');
   const bar = document.getElementById('loadingProgress');
   const txt = document.getElementById('loadingText');
   const btn = document.getElementById('splashStartBtn');
 
   const loadInterval = setInterval(() => {
-    progress += Math.floor(Math.random() * 25) + 15;
+    progress += Math.floor(Math.random() * 25) + 18;
     if (progress >= 100) {
       progress = 100;
       clearInterval(loadInterval);
       if (bar) bar.style.width = '100%';
-      if (txt) txt.style.display = 'none';
-      if (btn) btn.style.display = 'inline-flex'; // Показываем кнопку Старт
+      setTimeout(() => {
+        if (barWrap) barWrap.style.display = 'none';
+        if (txt) txt.style.display = 'none';
+        if (btn) btn.style.display = 'inline-flex';
+      }, 220);
     } else {
       if (bar) bar.style.width = progress + '%';
     }
-  }, 120);
+  }, 130);
 });
 
 window.handleFirstUserGesture = function() {
@@ -2624,10 +2624,9 @@ window.handleFirstUserGesture = function() {
     overlay.style.opacity = '0';
     setTimeout(() => {
       overlay.style.display = 'none';
-    }, 500);
+    }, 450);
   }
-  
-  // Принудительно разблокируем аудиоконтекст и запускаем музыку лобби
+
   ensureAudio();
   if (audioCtx && audioCtx.state === 'suspended') {
     audioCtx.resume();

@@ -10,23 +10,32 @@
 </head>
 <body>
 
-<!-- Стартовый экран-заставка (Загрузка и Старт) -->
+<!-- Стартовый экран-заставка (адаптивный без искажений пропорций) -->
 <div id="tapToStartOverlay">
-  <div class="splash-content">
-    <div class="splash-icon">🌊</div>
-    <h1 class="splash-title">Reef Runner</h1>
-    <p class="splash-subtitle" data-i18n="splashDesc">Глубоководное приключение</p>
-    
-    <!-- Полоса загрузки (анимированная) -->
-    <div class="loading-bar-container">
-      <div id="loadingProgress" class="loading-bar-fill"></div>
-    </div>
-    <div id="loadingText" class="loading-text">Загрузка мира...</div>
+  <!-- Размытый фоновый слой на весь экран, чтобы не было пустых полей -->
+  <div class="splash-ambient-bg"></div>
 
-    <!-- Кнопка Старт (появится после загрузки или сразу) -->
-    <button id="splashStartBtn" class="btn splash-btn" onclick="window.handleFirstUserGesture()" style="display: none;">
-      ▶ НАЧАТЬ ИГРУ
-    </button>
+  <!-- Основной контент заставки -->
+  <div class="splash-content">
+    <div class="splash-art-card">
+      <img 
+        src="reef_funner%20label.jpeg" 
+        onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='reef_runner%20label.jpeg';}" 
+        alt="Reef Runner" 
+        class="splash-art-img"
+      >
+    </div>
+
+    <div class="splash-controls">
+      <div id="loadingBarWrap" class="loading-bar-container">
+        <div id="loadingProgress" class="loading-bar-fill"></div>
+      </div>
+      <div id="loadingText" class="loading-text">Загрузка мира...</div>
+
+      <button id="splashStartBtn" class="btn splash-btn" onclick="window.handleFirstUserGesture()" style="display: none;">
+        ▶ НАЧАТЬ ИГРУ
+      </button>
+    </div>
   </div>
 </div>
 
@@ -54,7 +63,7 @@
       <button id="unfreezeBtn" class="boost-btn" onclick="window.useUnfreeze()">⚡</button>
     </div>
 
-    <!-- Стартовый экран -->
+    <!-- Стартовый экран (Лобби) -->
     <div id="startScreen" class="ui-overlay">
       <div class="lang-switcher">
         <button class="lang-btn" id="lang-ru" onclick="window.setLanguage('ru')">RU</button>
