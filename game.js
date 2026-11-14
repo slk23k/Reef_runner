@@ -5,12 +5,21 @@ const ctx = canvas.getContext('2d', { alpha: false });
 function fitGameToViewport() {
   const container = document.getElementById('game-container');
   if (!container) return;
-  const scaleX = window.innerWidth / 360;
-  const scaleY = window.innerHeight / 640;
-  const scale = Math.min(scaleX, scaleY);
-  container.style.transform = `scale(${scale})`;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const scaleX = vw / 360;
+  const scaleY = vh / 640;
+
+  // На мобильных (ширина <= 600px) растягиваем ровно на весь экран без рамок
+  if (vw <= 600) {
+    container.style.transform = `scale(${scaleX}, ${scaleY})`;
+  } else {
+    const scale = Math.min(scaleX, scaleY);
+    container.style.transform = `scale(${scale})`;
+  }
 }
 window.addEventListener('resize', fitGameToViewport);
+window.addEventListener('orientationchange', fitGameToViewport);
 fitGameToViewport();
 
 // --- YOUTUBE PLAYABLES SDK ОБЕРТКА ---

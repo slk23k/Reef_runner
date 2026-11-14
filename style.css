@@ -19,8 +19,11 @@ html, body {
 }
 
 #viewport-wrapper {
+  position: fixed;
+  inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -36,6 +39,14 @@ html, body {
   border-radius: 24px;
   overflow: hidden;
   transform-origin: center center;
+}
+
+/* На мобильных экранах убираем рамку и скругления, чтобы игра была на весь экран */
+@media (max-width: 600px) {
+  #game-container {
+    box-shadow: none;
+    border-radius: 0;
+  }
 }
 
 canvas {
